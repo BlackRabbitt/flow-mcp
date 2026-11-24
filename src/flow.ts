@@ -811,7 +811,10 @@ export async function runGeneration(job: Job): Promise<string[]> {
 
   await ensureProjectGrid(page);
   const agent = page.getByRole("button", { name: "Agent", exact: true });
-  if ((await agent.getAttribute("aria-pressed")) === "true") await agent.click();
+  // Some Flow accounts show the plain composer without an Agent toggle.
+  if (await agent.isVisible() && (await agent.getAttribute("aria-pressed", { timeout: 3000 })) === "true") {
+    await agent.click({ timeout: 5000 });
+  }
   const clear = page.getByRole("button", { name: "Clear prompt" });
   if (await clear.isVisible().catch(() => false)) await clear.click();
 
